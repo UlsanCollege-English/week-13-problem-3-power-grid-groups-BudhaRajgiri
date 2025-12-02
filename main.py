@@ -1,26 +1,52 @@
-
+# main.py
 
 def count_power_groups(stations, lines):
     """
-    Count how many connected groups of power stations exist.
+    Count the number of connected groups of power stations.
 
-    stations: list of station name strings.
-    lines: list of (a, b) pairs, meaning there is an undirected line between a and b.
+    Parameters
+    ----------
+    stations : list of str
+        List of station names.
+    lines : list of tuple(str, str)
+        Each tuple represents a connection (undirected) between two stations.
 
-    Return: integer number of connected components (groups) in the network.
+    Returns
+    -------
+    int
+        Number of connected groups (connected components).
     """
+    if not stations:
+        return 0
 
-    # TODO Step 1–3: Make sure you understand "power group" and the inputs/outputs.
-    # TODO Step 4: Decide how to store neighbors (graph representation).
-    # TODO Step 5: Write pseudocode for traversing the graph and counting groups.
-    # TODO Step 6: Implement a graph traversal (DFS or BFS) to explore groups.
-    # TODO Step 7: Test on small graphs (1 node, chain, completely separate nodes).
-    # TODO Step 8: Check that your solution is roughly O(n + m).
-    pass
+    # Build adjacency list
+    graph = {station: set() for station in stations}
+    for a, b in lines:
+        if a in graph and b in graph:
+            graph[a].add(b)
+            graph[b].add(a)
+
+    visited = set()
+
+    def dfs(node):
+        stack = [node]
+        while stack:
+            current = stack.pop()
+            if current not in visited:
+                visited.add(current)
+                stack.extend(graph[current] - visited)
+
+    groups = 0
+    for station in stations:
+        if station not in visited:
+            dfs(station)
+            groups += 1
+
+    return groups
 
 
 if __name__ == "__main__":
-    # Optional manual test
-    stations = ["A", "B", "C", "D"]
-    lines = [("A", "B"), ("B", "C")]
-    print(count_power_groups(stations, lines))  # expected 2
+    # Example usage
+    stations = ["A", "B", "C", "D", "E"]
+    lines = [("A", "B"), ("C", "D")]
+    print(count_power_groups(stations, lines))  # Output: 3
